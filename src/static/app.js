@@ -4,6 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Escapes HTML metacharacters so untrusted values (e.g. participant emails) can't inject markup
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -23,22 +33,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotsLeft = details.max_participants - details.participants.length;
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
+          <h4>${escapeHtml(name)}</h4>
+          <p>${escapeHtml(details.description)}</p>
+          <p><strong>Schedule:</strong> ${escapeHtml(details.schedule)}</p>
           <p class="availability"><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <div class="participants">
             <h5>Participants</h5>
             <ul>
               ${details.participants.map((email) => `
                 <li>
-                  <span>${email}</span>
+                  <span>${escapeHtml(email)}</span>
                   <button
                     type="button"
                     class="remove-participant"
                     data-activity="${encodeURIComponent(name)}"
                     data-email="${encodeURIComponent(email)}"
-                    aria-label="Remove ${email} from ${name}"
+                    aria-label="Remove ${escapeHtml(email)} from ${escapeHtml(name)}"
                   >&times;</button>
                 </li>
               `).join("")}
